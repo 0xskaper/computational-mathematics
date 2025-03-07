@@ -1,0 +1,16 @@
+== Merkle - Damglård Construction
+Suppose $c: ZZ_2^(m+t) -> ZZ_2^m$ is a collision-resistant compression function. For now, take $t >= 2$. We'll use c to construct a collision resistant hash function $h:XX -> ZZ_2^m$ where $XX = attach(limits(union.big), t: infinity, b: i = (m+t+1)) ZZ_2^i$. Suppose $x in XX$ with $|x| n >= m+t+1$ and we express $ x "as" x_1 || x_2 || ... || x_k $ where $|x_1| = |x_2| = ... = |x_(k-1)| = t - 1$ and $|x_k| = t-1-Q(0<=d<t-1)$. Note that $k = ceil.l (n/(t-1)) ceil.r$ and $d=k(t-1)-n$. Now, set $y=x_1, ..., y_(k-1) = x_(k-1), "and" y_k = x_k || 0^d$ and one additional block $y_(k+1) = {d "is binary"}$. Note all $|y_i| = t-1$ for all $1<=i<=k+1$.
+
+Let $ z_1 = 0^(m+1) || y_1 "and" g_1 = c(z_1) $ $z_2 = g_1 || 1 || y_2 "and" g_2 = c(z_2)$ $ dots.v $ $ z_(k+1) = g_k || 1 || y_(k+1) $ Finally, $h(x) = g_(k+1)$. Note all $y_i$s were defined so that $x_i -> y_i$ is injective. we now prove that $h$ is collision-resistant assuming $c$ is collision-resistant. We do this by constructing a collision for $c$, assuming that we can find a collision for $h$ (contrapositive of above). 
+
+*Proof*:
+Suppose we have a collision $(x, x')$ for $h$, and denote $y(x) = y_1 || ... || y_(k+1)$, $y_(x') = y'_1 || ... || y'_(l+1)$ where $x$ is padded with d zeros and $x'$ is padded with $d'$ zeros.
+
+The $g$ values for $x$ and $x'$ will be denoted by $g_i$s and $g_i'$s. 
+
+- *_Case 1_*: Suppose $|x| eq.triple| |x'|"mod"(t-1)$ (i.e, $d!=d'$). Thus $y_(k+1) = { d "in binary" } != y'_(l+1) = {d' "in binary"}$. Then $h(x) = c(g_k || 1 || y_(k+1)) $ $ h(x') = c(g'_l) || 1 || y'_(l+1)) $ but $h(x) = h(x')$, so $(g_k || 1 || y_(k+1), g'_l || 1 || y'_(l+1)$ is a collision for $c$, since the last $(t-1)$ bits are different $(y_(k+1) != y'_(l+1))$. 
+
+- *_Case 2_*: $|x| eq.triple |x'|$ mod $(t-1)$, i.e, $d = d'$. 
+  - *_Case 2a_*: $|x| = |x'|$, so $k=l$. Like in case 1, we have $c(g_k || 1 || y_(k+1)) = c(g'_k || 1 || y'_(k+1))$. If $g_k != g'_k$ then we have a collision for $c$. However, if $g_k = g'_k$ then this is $underline(not)$ a collision, since the input strings $g_k || 1 || y_k = g'_k || 1 || y'_(k+1)$. Then $c(g_k || 1 || y_k) = g_k = g'_k = c(g'_(k-1) || 1 || y'_k)$ if $y_k != y'_k$ or $g_(k-1) != g'_(k-1)$ then this is a collision. Otherwise, $g_(k-1) = g'_(k-1)$, and we continue this process until eventually $c(0^(m+1) || y_1) = g_1 = g'_1 = c(0^(m+1) || y'_1)$. If $g_1  != y'_1$ then this is a collision and we are done. Otherwise, if $y_1 = y'_1$, then we have $ y_1 = y'_1 $ $ y_2 = y'_2 $ $ dots.v $ $ y_(k) = y_(k') $ $ y_(k+1) = y'_(k+1) $ which imply $ y(x) = y(x') $, but since $y$ is an injection, $x = x'$ which we assumed was $underline(not)$ the case, so this cannot happen.
+
+- *_Case 2b_*: $|x| != |x'| $ and without loss of generality, suppose we suppose $|x| > |x'|$, so $k > l$. This case proceeds like in 2a, and we eithner find a collision of the form $(g_k || 1 || y_(k+1), g'_l || 1 || y'_(l+1))$ (or for smaller indices of $g_k, y_k+1, "etc").$ or, eventually, if this does not find a collision, we eventually arrive at $c(g_(k-l) || 1 || y_(k-1+l)) = c(0^m || 0 || y'_1)$ but the $(m+1)$th bit of the left string is 1, but the $(m+1)$th bit of the right string is 0, so this must be a collision.

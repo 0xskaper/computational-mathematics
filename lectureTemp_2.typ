@@ -1,0 +1,24 @@
+Last class, we saw how to generate a MAC using a hash function like SHA-1. Another way of generating MAC is to prepend the key to a message and use a hash function based on the sponge construction like SHA-3, which is not susceptible to a length extension attack, as knowledge of $h_k(x)$ doesn't help you compute $h_k(x || x')$ unlike in the merkel-damgard construction. 
+
+Another popular way of constructing a MAC uses a block cipher in CBC mode with a fixed IV. Recall in CBC mode each ciphertext block $y_i$ is XORed with the next plaintext before encyption, so far $x = x_1, ..., x_n$. We have $ y_0 = "IV" $ $ y_1 = e_k(y_0 xor x_1) $ $ dots.v $ $ y_n = e_k(y_(n-1) xor x_n) $ CBC-MAC$(x, k)$ are discarded. The best known attack in CBC-MAC is a birthday chosen message attack. Eve requests the tags of a large number of messages and if a duplicate is ever found, Eve needs only one more request in order to forge a tag.
+
+Suppose the block length is $t$ and let $x_3, x_4,.. , x_n in ZZ_z^t$ be fixed. Eve choses Q distinct elements of $ZZ_2^t$ (where $Q_x 1.17sqrt(2^x))$ and call them $x_i^(1), x_i^(2),... ,x_i^(Q);$ these will form the first block of the messages she'll construct. Also let $x_2^(1), ..., x_2^(2)$ be chosen randomly in $ZZ_2^t$ (these will be the $2^"nd"$ blocks).
+
+Now define $ x^(i) = x_1^(i) || x_2^(i) || x_3 || x_4 || ... || x_n $ for $1 <= i <= Q$. Eve requests tags for all $x^(i)$, and with 50% chance 2 have the same tag.
+
+In the process of finding the tags for $x_(i)$, the oracle will find the values $y_0^(i), ..., y_n(i)$ and output $y_n^(i)$ as the tag. Suppose 2 tags match i.e. $y_n^(i) = y_n^(j)$ for $1<=i<j<=Q$. Because the last n-2 blocks of the $x^(i)s$ are identical, this implies that $ y_2^(i) = y_2^(j), "and"$ $ y_2^(i) = e_k(y_i^(i) xor x_2^(i)) "and" y_2^(j) = e_k(y_1^(j) xor x_2^(j))$ so applying $Q_k$ to both sides, we get $ y_1^(i) xor x_2^(i) = y_1^(j) xor x_2^(j) $. Since $x_2^(i) and x_2^(j)$ were chosen randomly, with $1/2$ probability this will happen. Now let $delta in ZZ_2^t$ be a nonzero bitstring. XOR $delta$ with second block of $x^(i) and x^(j)$ to get $ u = x_1^(i) || (x_2^(i) xor delta) || x_3 || ... || x_n $ $ x = x_1^(j) || x_2^(j) xor delta || x_3 || ... || x_n $ 
+
+Eve requests the tag for $u$, but then can use it as forgery for the tag of v, since u and v have the same tag. Note $u!=v$ since $x_1^(i) != x_1^(j)$. This attack is a $(1/2, O(2^(t/2)))$ - forger. So for, we've only used a MAC to provide data integrity, but it is often used with encryption, achieving secrecy as well. This is called *authenticated encryption*, and there are 3 obvious ways to combine a MAC with encryption. (We'll use seprate keys fpr the MAC and encryption.)
+
++ MAC-and-encrypt
+For message x, compute $z=h_k_1(x)$ and $y = e_k_2(x)$ and send $(y, z)$. Bob decrypt y and checks z is a valid tag for y's encryption.
++ MAC-then-encrypt
+Still $z=h_k_1(x)$ but the plaintext to encrypt incorportates the $z: y=e_k_2(x || z)$, and only y is sent. Bob decrypts y to get $x || z$ and checks z is the tag of $x$.
++ Encrypt-then-MAC
+Now first compute $y = e_k_2(x)$ and then the tag is $z=h_k_1(y)$, and send $(y,z)$. Bob checks z is the tag of y, and if so, will decrypt y.
+
+Method 3 is usually the best it can be shown if the MAC and encryption are individually secure, then the method is also secure, but this is not always true is methods 1 and 2. Also, onlly in method 3 can decryption be skipped if the tag is invalid. The CCM (counter with CBC-MAC) mode is a NIST standard providing authenticated encryption. It combines CTR mode a tag computed by CBC-MAC. Suppose $x=x_1, ..., x_n$ is the plaintext with each $x_i in ZZ_2^m$. As in CTR mode, a initial value ctr is chosen by Alice and sent to Bob in plaintext. It is important that ctr is never repeated with same key, otherwise Eve can learn the XOR of your messages encrypted with same key and ctr. 
+
+Starting from ctr, we construct $T_0,... ,T_n$ with $ T_i = ("ctr" + i)$ mod $2^m$. The ciphertext blocks are encrypted with $ y_i = x_i xor e_k(Y_i) $. Then compute the tag temp = CBC-MAC$(x,k)$ and $ y' = "temp" xor e_k(T_0)$ The encrypted tag is appended to the ciphertext, $y = y_1 || ... || y_n || y'$. Bob computes $e_k(T_0), ...,e_k(T_n)$ and then finds $x_i = y_i xor r_k(T_1)...x_n = y_n xor e_k(T_n)$, obtaining x. Then Bob computes CBC-0MAC$(x,k)$ and XORs it with $e_k(T_0)$ to check the tag is valid.
+
+We now discuss public-key cryptography and the RSA crypto system, the first example of a cryptosystem where the encryption and decryption keys are different, with the encryption key publicaly known. Thus, anyone can securely send a message to anyone for which they have the public key. When Alice wants to send a message to Bob, it is essential she has his actual public key and not an attacker's. In practice, public keys are digitally signed using certificates to verfy their authenticity.
