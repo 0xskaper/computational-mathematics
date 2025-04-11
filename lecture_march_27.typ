@@ -19,10 +19,11 @@ This algorithm will do something similar execpt based on writing $a b - 1 = 2^s 
  $ v := w^r mod n $ 
 
 if $v = 1$: return failure, for $i$ from 1 to $s$: 
-$v_"prev" := v$
-$v: v = v^2 mod n$
+$ v_"prev" := v $
+$ v: v = v^2 mod n $
 if $v = -1$: return failure
-if $ v = 1$: return $gcd(v_"prev" + 1, n)$
+
+if $v = 1$: return $gcd(v_"prev" + 1, n)$
 
 In the final return, $v_"prev"$ is a non-trivial square root of 1. We must eventually reach a return because $w^a b - 1 eq.triple 1 mod n$ as $a b = 1 + k emptyset(n) "for" k in ZZ$ and $w^nothing(n) eq.triple 1 mod n$.
 
@@ -38,15 +39,15 @@ The second inequality says that if $n$ has $l$ bits then $p$ and $q$ each have $
 
 So for RSA to be secure, we always ensure $3 a > n^(1/4)$, even though this increases the cost of decryption slightly. 
 
-The attack is based on computing an approximation to the fraction $b/n$ (a publically known quantity) that has a smaller denominator thn $n$. Since $a b eq.triple 1 mod(nothing(n))$ ot $a b = 1 + t dot nothing(n)$ for $t in ZZ$.
+The attack is based on computing an approximation to the fraction $b/n$ (a publically known quantity) that has a smaller denominator than $n$. Since $a b eq.triple 1 mod(nothing(n))$ or $a b = 1 + t dot nothing(n)$ for $t in ZZ$.
 
 Since $n = p q > q^2$ so $ q < sqrt(n)$, and $0 < n - nothing(n) = p + q - 1 < 2 q + q - 1 = 3 q - 1 < 3 sqrt(n)$. 
-$ |(b/n) - (t/a)  =  | (b a - t n) / a n  =  | (1 + t nothing(n) - t n) / a n | =  |(t(n - nothing(n)) - 1)/a n| <  (3 sqrt(n) t) / a n = 3 t / a sqrt(n)$
+$ |b/n - t/a | =  | (b a - t n) / (a n) |  =  | (1 + t nothing(n) - t n) / (a n) | =  |(t(n - nothing(n)) - 1)/(a n)| <  (3 sqrt(n) t) / (a n) = (3 t) / (a sqrt(n)) $
 
-Note $t = (a b - 1) / nothing(n) < a (b/nothing(n)) < a < n^(1/4)/ 3$ so the above is < $n^(1/4) / (a sqrt(n)) = 1 / (a n^(1/4))$ and $ 1/n^(1/4) < 1/(3 a)$ by assumption.
+Note $t = (a b - 1) / nothing(n) < a b/nothing(n) < a < n^(1/4)/ 3$ so the above is < $n^(1/4) / (a sqrt(n)) = 1 / (a n^(1/4))$ and $ 1/n^(1/4) < 1/(3 a)$ by assumption.
 
-The final bound is $|(b/n) - (t/a)$ < $1 /(3 (a^2))$. Since $1 / (3 a^2)$, Since $1/3a^2$ is very small, this means $t/a$ is a very good approximation to $b/n$. In fact $t/a$ can be computed directly from $b/n$ by the following:
+The final bound is $|b/n - t/a|$ < $1 /(3 a^2)$. Since $1 / (3 a^2)$ is very small, this means $t/a$ is a very good approximation to $b/n$. In fact $t/a$ can be computed directly from $b/n$ by the following:
 
-*Theorem*: If $a/b$ and $c/d$ are in lowest terms and $| a/b - c/d < 1/2d^2 |$. Then $c/d$ is convergent in the continued fraction (CF) expansion of $a/b$.
+*Theorem*: If $a/b$ and $c/d$ are in lowest terms and $| a/b - c/d | < 1/(2d^2) $. Then $c/d$ is convergent in the continued fraction (CF) expansion of $a/b$.
 
 A continued fraction is of the form #continued_fraction when the $q_i s$ are positive integers. In face, the CF expansion of $a/b$ has a suprising connection to the Euclidean algorithm. Run Euclidean algorithm on $(a, b)$ the quotients produced are exactly the $q_i$ in the CF expansion of $a /b$ has a suprising connection to the euclidean algorithm.
